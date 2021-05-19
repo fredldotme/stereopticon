@@ -1,0 +1,4 @@
+[submodule "3rdparty/FreeRDP"]
+	path = 3rdparty/FreeRDP
+	url = https://github.com/fredldotme/FreeRDP-mirror.git
+	branch = working
