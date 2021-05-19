@@ -1,0 +1,185 @@
+name: stereopticon
+adopt-info: stereopticon
+summary: Wayland compositor for seamless Linux guest integration
+description: |
+  Stereopticon is a Wayland compositor for Linux guests that forwards windows seamlessly to the host OS
+
+confinement: strict
+base: core20
+architectures:
+  - build-on: amd64
+    run-on: amd64
+
+  - build-on: armhf
+    run-on: armhf
+
+  - build-on: arm64
+    run-on: arm64
+
+apps:
+  stereopticon:
+    environment:
+      LD_LIBRARY_PATH: $(SNAP)/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}:${SNAP}/opt/stereopticon/lib:${SNAP}/opt/stereopticon/lib/${SNAPCRAFT_ARCH_TRIPLET}
+      LIBGL_DRIVERS_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/dri
+      MIR_SERVER_CURSOR: "null"
+      MIR_SERVER_PLATFORM_PATH: ${SNAP}/usr/lib/${SNAPCRAFT_ARCH_TRIPLET}/mir/server-platform
+    command: bin/desktop-launch $SNAP/opt/stereopticon/bin/stereopticon
+    plugs: [ x11, wayland, opengl, login-session-control ]
+    slots: [ wayland ]
+
+parts:
+  stereopticon:
+    source-type: local
+    source: ./
+    plugin: nil
+    override-pull: |
+      snapcraftctl pull
+      source ./common.sh
+      snapcraftctl set-version "$VERSION"
+      snapcraftctl set-grade "stable"
+    override-build: ./build.sh -d -c
+    stage-packages:
+      - libaom0
+      - libboost-filesystem1.71.0
+      - libboost-iostreams1.71.0
+      - libboost-program-options1.71.0
+      - libbrotli1
+      - libbs2b0
+      - libcaca0
+      - libcairo-gobject2
+      - libcairo2
+      - libcapnp-0.7.0
+      - libcdio-cdda2
+      - libcdio-paranoia2
+      - libcdio18
+      - libcodec2-0.9
+      - libcurl4
+      - libdatrie1
+      - libdbustest1
+      - libdc1394-22
+      - libdouble-conversion3
+      - libdrm2
+      - libegl1
+      - libevent-2.1-7
+      - libfftw3-double3
+      - libflac8
+      - libflite1
+      - libfontconfig1
+      - libfreetype6
+      - libfribidi0
+      - libgdk-pixbuf2.0-0
+      - libgee-0.8-2
+      - libgl1
+      - libgl1-mesa-dri
+      - libgles2
+      - libglu1-mesa
+      - libglvnd0
+      - libglx0
+      - libgme0
+      - libgomp1
+      - libgraphite2-3
+      - libgsm1
+      - libgssapi3-heimdal
+      - libharfbuzz0b
+      - libicu66
+      - libiec61883-0
+      - libjpeg-turbo8
+      - libjson-glib-1.0-0
+      - libkrb5-26-heimdal
+      - liblcms2-2
+      - libldap-2.4-2
+      - liblilv-0-0
+      - liblttng-ust0
+      - libminizip1
+      - libmp3lame0
+      - libmpg123-0
+      - libmysofa1
+      - libnghttp2-14
+      - libnorm1
+      - libnspr4
+      - libnss3
+      - libnuma1
+      - libogg0
+      - libopenal1
+      - libopenjp2-7
+      - libopenmpt0
+      - libopus0
+      - libpango-1.0-0
+      - libpangocairo-1.0-0
+      - libpangoft2-1.0-0
+      - libpcre2-16-0
+      - libpgm-5.2-0
+      - libpixman-1-0
+      - libpng16-16
+      - libpostproc55
+      - libprocess-cpp3
+      - libprotobuf-lite17
+      - libpsl5
+      - libpulse0
+      - libraw1394-11
+      - libre2-5
+      - libroken18-heimdal
+      - librsvg2-2
+      - librtmp1
+      - librubberband2
+      - libsamplerate0
+      - libsasl2-2
+      - libsdl2-2.0-0
+      - libserd-0-0
+      - libshine3
+      - libslang2
+      - libsnappy1v5
+      - libsndfile1
+      - libsndio7.0
+      - libsodium23
+      - libsord-0-0
+      - libsoxr0
+      - libspeex1
+      - libsratom-0-0
+      - libssh-4
+      - libssh-gcrypt-4
+      - libswresample3
+      - libswscale5
+      - libthai0
+      - libtheora0
+      - libtwolame0
+      - liburcu6
+      - libusb-1.0-0
+      - libva-drm2
+      - libva-x11-2
+      - libvidstab1.1
+      - libvorbis0a
+      - libvorbisenc2
+      - libvorbisfile3
+      - libvpx6
+      - libwavpack1
+      - libwayland-client0
+      - libwayland-cursor0
+      - libwayland-egl1
+      - libwayland-server0
+      - libx11-6
+      - libx264-155
+      - libx265-179
+      - libxau6
+      - libxcb-composite0
+      - libxcb-render0
+      - libxcb-shape0
+      - libxcb-shm0
+      - libxcb-xfixes0
+      - libxcb1
+      - libxcursor1
+      - libxdmcp6
+      - libxext6
+      - libxfixes3
+      - libxi6
+      - libxinerama1
+      - libxkbcommon0
+      - libxml2
+      - libxrandr2
+      - libxrender1
+      - libxslt1.1
+      - libxss1
+      - libzmq5
+      - libzvbi0
+      - mesa-utils
+      - ocl-icd-libopencl1
