@@ -18,7 +18,7 @@ CLEAN=0
 BUILD_DEPS=0
 
 # Overridable number of build processors
-if [ "$NUM_PROC" == "" ]; then
+if [ "$NUM_PROCS" == "" ]; then
     NUM_PROCS=$(nproc --all)
 fi
 
