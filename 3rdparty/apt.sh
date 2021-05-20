@@ -14,4 +14,7 @@ sudo apt install -y \
     libdbustest1-dev \
     libwayland-dev \
     libcurl4-openssl-dev \
-    libfontconfig1-dev
+    libfontconfig1-dev \
+    libssl-dev \
+    libusb-1.0-0-dev \
+    libusb-dev
