@@ -5,6 +5,8 @@
 #include <string.h>
 #include <errno.h>
 #include <sys/time.h>
+#include <sys/socket.h>
+#include <linux/vm_sockets.h>
 
 static void rdp_main_loop(RdpThreadMemory* sharedmem)
 {
@@ -17,7 +19,7 @@ static void rdp_main_loop(RdpThreadMemory* sharedmem)
 
     memset(rfds, 0, sizeof(rfds));
 
-    std::cout << "Starting RDP server loop" << std::endl;
+    std::cout << "Starting RDP server loop on socket " << sharedmem->socket() << std::endl;
     while (true)
     {
         rcount = 0;
@@ -69,14 +71,17 @@ static BOOL peer_accepted(freerdp_listener* instance, freerdp_peer* client)
 
 RdpServer::RdpServer()
 {
-    this->m_rdp_shared_memory = new RdpThreadMemory(freerdp_listener_new());
+    int listenSocket = socket(AF_VSOCK, SOCK_STREAM, 0);
+    freerdp_listener* rdpListener = freerdp_listener_new();
+    this->m_rdp_shared_memory = new RdpThreadMemory(rdpListener, listenSocket);
+
     this->m_rdp_shared_memory->listener()->PeerAccepted = peer_accepted;
-    if (this->m_rdp_shared_memory->listener()->Open(
-                this->m_rdp_shared_memory->listener(), NULL, 3389))
-    {
-        this->m_listenThread = new std::thread(rdp_main_loop,
-                                               this->m_rdp_shared_memory);
-    }
+
+    const bool success = this->m_rdp_shared_memory->listener()->OpenFromSocket(
+                this->m_rdp_shared_memory->listener(),
+                this->m_rdp_shared_memory->socket());
+    this->m_listenThread = new std::thread(rdp_main_loop,
+                                           this->m_rdp_shared_memory);
 }
 
 RdpServer::~RdpServer()
