@@ -21,8 +21,7 @@ struct GuestPixelBufferHeader {
 	unsigned long long windowId;
 };
 
-struct GuestPixelBufferRedrawHeader {
-	GuestPixelBufferHeader header;
+struct GuestPixelBufferRedrawData {
 	PixelFormat format;
 	unsigned long width;
 	unsigned long height;
@@ -31,7 +30,13 @@ struct GuestPixelBufferRedrawHeader {
 	unsigned long long bufferSize;
 };
 
+struct GuestPixelBufferRedrawHeader {
+	GuestPixelBufferHeader header;
+	GuestPixelBufferRedrawData data;
+};
+
 struct GuestPixelBufferRedrawCommand {
+	GuestPixelBufferRedrawCommand() {}
 	GuestPixelBufferRedrawCommand(
 		unsigned long& width,
 		unsigned long& height,
@@ -41,11 +46,11 @@ struct GuestPixelBufferRedrawCommand {
 		char* pixelBuffer = nullptr)
 	{
 		this->header.header.command = GuestCommand::COMMAND_REDRAW;
-		this->header.width = width;
-		this->header.height = height;
-		this->header.offsetX = offsetX;
-		this->header.offsetY = offsetY;
-		this->header.bufferSize = bufferSize;
+		this->header.data.width = width;
+		this->header.data.height = height;
+		this->header.data.offsetX = offsetX;
+		this->header.data.offsetY = offsetY;
+		this->header.data.bufferSize = bufferSize;
 		this->pixelBuffer = pixelBuffer;
 	};
 	GuestPixelBufferRedrawHeader header;
