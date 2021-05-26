@@ -1,7 +1,3 @@
-[submodule "3rdparty/FreeRDP"]
-	path = 3rdparty/FreeRDP
-	url = https://github.com/fredldotme/FreeRDP-mirror.git
-	branch = working
 [submodule "3rdparty/mir"]
 	path = 3rdparty/mir
 	url = https://github.com/MirServer/mir
