@@ -79,8 +79,9 @@ done:
 
 class GuestPixelBufferReceiver {
 public:
-	GuestPixelBufferReceiver(int socketFd)
+	GuestPixelBufferReceiver(int socketFd, PixelBufferHandler* handler)
 	{
+		this->m_readLoopMemory.handler = handler;
 		this->m_readLoopMemory.socketFd = socketFd;
 		this->m_readThread = new std::thread(socketReadLoop, &m_readLoopMemory);
 	}
