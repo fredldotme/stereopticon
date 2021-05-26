@@ -19,7 +19,7 @@ struct GuestPixelBufferHeader {
 	unsigned short version;
 	GuestCommand command;
 	unsigned long long windowId;
-};
+} __attribute((packed))__;
 
 struct GuestPixelBufferRedrawData {
 	PixelFormat format;
@@ -28,12 +28,12 @@ struct GuestPixelBufferRedrawData {
 	unsigned long offsetX;
 	unsigned long offsetY;
 	unsigned long long bufferSize;
-};
+} __attribute((packed))__;
 
 struct GuestPixelBufferRedrawHeader {
 	GuestPixelBufferHeader header;
 	GuestPixelBufferRedrawData data;
-};
+} __attribute((packed))__;
 
 struct GuestPixelBufferRedrawCommand {
 	GuestPixelBufferRedrawCommand() {}
