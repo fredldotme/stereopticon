@@ -10,6 +10,7 @@ sudo apt install -y \
     libgtest-dev \
     libboost-all-dev \
     pkgconf \
+    libcairo2-dev \
     libdbus-1-dev \
     libdbustest1-dev \
     libwayland-dev \
