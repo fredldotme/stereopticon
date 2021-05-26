@@ -33,7 +33,6 @@
 #include <atomic>
 
 #include "window_manager.h"
-#include "rdpserver.h"
 
 namespace {
 struct StereopticonAuthorizer : miral::ApplicationAuthorizer
@@ -81,7 +80,6 @@ int main(int argc, char const* argv[])
 {
     using namespace miral;
 
-    RdpServer rdpServer;
     MirRunner runner{argc, argv};
 
     DisplayConfiguration display_config{runner};
