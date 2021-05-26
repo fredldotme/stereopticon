@@ -99,7 +99,6 @@ fi
 # Build direct dependencies if requested
 if [ "$BUILD_DEPS" == "1" ]; then
     # Build direct dependencies
-    build_3rdparty_cmake FreeRDP
     build_3rdparty_cmake mir
 fi
 
