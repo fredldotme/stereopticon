@@ -38,6 +38,9 @@ struct HostWindowPair
 class PixelReceiver : public PixelBufferHandler
 {
 public:
+    void run();
+
+public:
     void spawnWindow(GuestWindowSpawnCommand& spawnData) override;
     void receiveRedraw(GuestPixelBufferRedrawCommand& command) override;
     bool windowExists(wayland_window_id_t& windowId) override;

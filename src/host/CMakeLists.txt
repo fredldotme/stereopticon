@@ -23,6 +23,8 @@ set(SRC
 )
 
 add_executable(stereopticon-host
+    MACOSX_BUNDLE
+
     ${SRC}
 )
 

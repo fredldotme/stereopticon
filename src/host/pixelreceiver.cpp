@@ -12,6 +12,20 @@ static int getChannelsForFormat(PixelFormat& format)
     }
 }
 
+void PixelReceiver::run()
+{
+    SDL_Event event;
+
+    while(SDL_PollEvent(&event)) {
+        if (event.type == SDL_QUIT)
+            break;
+
+        for (auto it = this->m_waylandWindowIdMap.begin(); it != this->m_waylandWindowIdMap.end(); it++) {
+            SDL_Window* window = it->second->window;
+        }
+    }
+}
+
 void PixelReceiver::spawnWindow(GuestWindowSpawnCommand& spawnData)
 {
     if (this->windowExists(spawnData.header.windowId))
