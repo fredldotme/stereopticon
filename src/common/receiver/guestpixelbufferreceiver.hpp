@@ -7,7 +7,9 @@
 
 class PixelBufferHandler {
 public:
+    virtual void spawnWindow(GuestWindowSpawnData& spawnData) = 0;
 	virtual void receiveRedraw(GuestPixelBufferRedrawCommand& command) = 0;
+    virtual bool windowExists(wayland_window_id_t& windowId) = 0;
 };
 
 struct ReadSocketThreadMemory {
@@ -17,7 +19,7 @@ struct ReadSocketThreadMemory {
 	PixelBufferHandler* handler = nullptr;
 };
 
-void socketReadLoop(ReadSocketThreadMemory* memory)
+static void socketReadLoop(ReadSocketThreadMemory* memory)
 {
 	if (memory->socketFd < 0)
 		goto done;
@@ -35,13 +37,28 @@ void socketReadLoop(ReadSocketThreadMemory* memory)
 			continue;
 
 		size_t remainingLen = 0;
-		if (header.command == GuestCommand::COMMAND_REDRAW) {
+
+		if (header.command == GuestCommand::COMMAND_WINDOW_SPAWN) {
+            GuestWindowSpawnData spawnData;
+            remainingLen = sizeof(spawnData);
+            receivedLen = read(memory->socketFd, (void*)&spawnData, remainingLen);
+
+            if (receivedLen != remainingLen)
+                continue;
+
+            memory->handler->spawnWindow(spawnData);
+        } else if (header.command == GuestCommand::COMMAND_REDRAW) {
+            // Ignore windows that haven't been spawned yet
+            const bool windowExists = memory->handler->windowExists(header.windowId);
+            if (!windowExists)
+                continue;
+
 			GuestPixelBufferRedrawData redrawData;
 			remainingLen = sizeof(redrawData);
-			receivedLen = read(memory->socketFd, (void*)&redrawData, sizeof(redrawData));
+			receivedLen = read(memory->socketFd, (void*)&redrawData, remainingLen);
 
 			// Received data has to match size
-			if (receivedLen != sizeof(redrawData))
+			if (receivedLen != remainingLen)
 				continue;
 
 			// Avoid zero-pixel messages
