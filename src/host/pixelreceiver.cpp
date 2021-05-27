@@ -58,6 +58,11 @@ void PixelReceiver::receiveRedraw(GuestPixelBufferRedrawCommand& command)
     if (!surface)
         return;
 
+    // Let's override the obsolete back buffer with a new frame
+    if (hostWindow->backBuffer)
+        SDL_FreeSurface(hostWindow->backBuffer);
+
+    // But if there is no current frontBuffer, then display that immediately
     if (!hostWindow->frontBuffer)
         hostWindow->frontBuffer = surface;
     else
