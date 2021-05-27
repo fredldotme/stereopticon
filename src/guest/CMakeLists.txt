@@ -8,7 +8,6 @@ include(FindPkgConfig)
 pkg_check_modules(MIRSERVER mirserver>=0.26 REQUIRED)
 pkg_check_modules(MIRRENDERERGLDEV mir-renderer-gl-dev>=0.26 REQUIRED)
 pkg_check_modules(MIRAL miral>=2.0.0 REQUIRED)
-pkg_check_modules(WINPR winpr2 REQUIRED)
 
 include_directories(
     SYSTEM
