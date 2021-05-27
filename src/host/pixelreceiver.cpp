@@ -12,6 +12,18 @@ static int getChannelsForFormat(PixelFormat& format)
     }
 }
 
+static int getSdlPixelFormatForPixelFormat(PixelFormat& format)
+{
+    switch (format) {
+    case PixelFormat::FORMAT_RGBA8888:
+        return SDL_PIXELFORMAT_RGBA8888;
+    case PixelFormat::FORMAT_ARGB8888:
+        return SDL_PIXELFORMAT_ARGB8888;
+    default:
+        return SDL_PIXELFORMAT_RGB444;
+    }
+}
+
 void PixelReceiver::run()
 {
     SDL_Event event;
@@ -21,7 +33,17 @@ void PixelReceiver::run()
             break;
 
         for (auto it = this->m_waylandWindowIdMap.begin(); it != this->m_waylandWindowIdMap.end(); it++) {
-            SDL_Window* window = it->second->window;
+            if (!it->second->dirty)
+                continue;
+
+            SDL_Renderer* renderer = it->second->renderer;
+            SDL_Texture* texture = it->second->texture;
+
+            SDL_RenderClear(renderer);
+            SDL_RenderCopy(renderer, texture, NULL, NULL);
+            SDL_RenderPresent(renderer);
+
+            it->second->dirty = false;
         }
     }
 }
@@ -43,7 +65,7 @@ void PixelReceiver::spawnWindow(GuestWindowSpawnCommand& spawnData)
 
     hostWindow->renderer = SDL_CreateRenderer(hostWindow->window,
                                               -1,
-                                              0);
+                                              SDL_RENDERER_ACCELERATED);
 
     if (!hostWindow->renderer)
         return;
@@ -72,16 +94,30 @@ void PixelReceiver::receiveRedraw(GuestPixelBufferRedrawCommand& command)
     if (!surface)
         return;
 
-    // Let's override the obsolete back buffer with a new frame
-    if (hostWindow->backBuffer)
-        SDL_FreeSurface(hostWindow->backBuffer);
+    // Create a texture for uploading the window content
+    if (!hostWindow->texture) {
+        int windowWidth = 0;
+        int windowHeight = 0;
+        SDL_GetWindowSize(hostWindow->window, &windowWidth, &windowHeight);
+        hostWindow->texture = SDL_CreateTexture(
+            hostWindow->renderer,
+            getSdlPixelFormatForPixelFormat(command.header.data.format),
+            SDL_TEXTUREACCESS_STREAMING,
+            windowWidth,
+            windowHeight);
+        SDL_SetTextureBlendMode(hostWindow->texture, SDL_BLENDMODE_BLEND);
+    }
 
-    // But if there is no current frontBuffer, then display that immediately
-    if (!hostWindow->frontBuffer)
-        hostWindow->frontBuffer = surface;
-    else
-        hostWindow->backBuffer = surface;
+    // Update only the dirty area
+    SDL_Rect dirtyArea;
+    dirtyArea.x = command.header.data.offsetX;
+    dirtyArea.y = command.header.data.offsetY;
+    dirtyArea.w = command.header.data.width;
+    dirtyArea.h = command.header.data.height;
 
+    SDL_UpdateTexture(hostWindow->texture, &dirtyArea, (void*)command.pixelBuffer, channels * 8);
+
+    // Mark as dirty
     hostWindow->dirty = true;
 }
 

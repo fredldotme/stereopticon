@@ -19,19 +19,14 @@ struct HostWindowPair
             SDL_DestroyWindow(window);
             window = nullptr;
         }
-        if (backBuffer) {
-            SDL_FreeSurface(backBuffer);
-            backBuffer = nullptr;
-        }
-        if (frontBuffer) {
-            SDL_FreeSurface(frontBuffer);
-            frontBuffer = nullptr;
+        if (texture) {
+            SDL_DestroyTexture(texture);
+            texture = nullptr;
         }
     }
     SDL_Window* window = nullptr;
     SDL_Renderer* renderer = nullptr;
-    SDL_Surface* frontBuffer = nullptr;
-    SDL_Surface* backBuffer = nullptr;
+    SDL_Texture* texture = nullptr;
     bool dirty = false;
 };
 

@@ -11,4 +11,6 @@ int main(int argc, char** argv)
     GuestPixelBufferReceiver receiver(0, &windowPainter);
 
     windowPainter.run();
+
+    SDL_Quit();
 }
