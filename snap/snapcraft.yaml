@@ -37,7 +37,7 @@ parts:
       source ./common.sh
       snapcraftctl set-version "$VERSION"
       snapcraftctl set-grade "stable"
-    override-build: ./build.sh -d -c
+    override-build: ./build.sh -d -c --guest
     stage-packages:
       - libaom0
       - libboost-filesystem1.71.0
