@@ -19,7 +19,7 @@ struct GuestPixelBufferHeader {
 	unsigned short version;
 	GuestCommand command;
 	unsigned long long windowId;
-} __attribute((packed))__;
+} __attribute__((packed));
 
 // Redraw metadata. Describes information about where and how
 // to draw pixel buffers that are sent after the RedrawHeader.
@@ -30,7 +30,7 @@ struct GuestPixelBufferRedrawData {
 	unsigned long offsetX;
 	unsigned long offsetY;
 	unsigned long long bufferSize;
-} __attribute((packed))__;
+} __attribute__((packed));
 
 // Combination of both the main header and the redraw metadata.
 // Sent by the guest compositor to the host side in one chunk
@@ -39,17 +39,19 @@ struct GuestPixelBufferRedrawData {
 struct GuestPixelBufferRedrawHeader {
 	GuestPixelBufferHeader header;
 	GuestPixelBufferRedrawData data;
-} __attribute((packed))__;
+} __attribute__((packed));
 
 struct GuestPixelBufferRedrawCommand {
-	GuestPixelBufferRedrawCommand() {}
+	GuestPixelBufferRedrawCommand() {
+        this->header.header.command = GuestCommand::COMMAND_REDRAW;
+	}
 	GuestPixelBufferRedrawCommand(
 		unsigned long& width,
 		unsigned long& height,
-		unsigned long& offsetX = 0,
-		unsigned long& offsetY = 0,
-		unsigned long long& bufferSize = 0,
-		char* pixelBuffer = nullptr)
+		unsigned long& offsetX,
+		unsigned long& offsetY,
+		unsigned long long& bufferSize,
+		char* pixelBuffer)
 	{
 		this->header.header.command = GuestCommand::COMMAND_REDRAW;
 		this->header.data.width = width;

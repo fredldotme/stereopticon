@@ -35,7 +35,7 @@ void socketReadLoop(ReadSocketThreadMemory* memory)
 			continue;
 
 		size_t remainingLen = 0;
-		if (header.command == GuestCommand::REDRAW) {
+		if (header.command == GuestCommand::COMMAND_REDRAW) {
 			GuestPixelBufferRedrawData redrawData;
 			remainingLen = sizeof(redrawData);
 			receivedLen = read(memory->socketFd, (void*)&redrawData, sizeof(redrawData));
