@@ -37,7 +37,7 @@ struct GuestWindowSpawnData {
 
 // Sent by the guest compositor to the host in one chunk,
 // read by the host display as two chunks (first header, then data).
-struct GuestWindowSpawnHeader {
+struct GuestWindowSpawnCommand {
     GuestPixelBufferHeader header;
     GuestWindowSpawnData data;
 } __attribute__((packed));

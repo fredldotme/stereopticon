@@ -7,7 +7,7 @@
 
 class PixelBufferHandler {
 public:
-    virtual void spawnWindow(GuestWindowSpawnData& spawnData) = 0;
+    virtual void spawnWindow(GuestWindowSpawnCommand& spawnData) = 0;
 	virtual void receiveRedraw(GuestPixelBufferRedrawCommand& command) = 0;
     virtual bool windowExists(wayland_window_id_t& windowId) = 0;
 };
@@ -46,7 +46,10 @@ static void socketReadLoop(ReadSocketThreadMemory* memory)
             if (receivedLen != remainingLen)
                 continue;
 
-            memory->handler->spawnWindow(spawnData);
+            GuestWindowSpawnCommand command;
+            command.header = header;
+            command.data = spawnData;
+            memory->handler->spawnWindow(command);
         } else if (header.command == GuestCommand::COMMAND_REDRAW) {
             // Ignore windows that haven't been spawned yet
             const bool windowExists = memory->handler->windowExists(header.windowId);
