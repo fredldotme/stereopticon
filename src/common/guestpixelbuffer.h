@@ -21,6 +21,8 @@ struct GuestPixelBufferHeader {
 	unsigned long long windowId;
 } __attribute((packed))__;
 
+// Redraw metadata. Describes information about where and how
+// to draw pixel buffers that are sent after the RedrawHeader.
 struct GuestPixelBufferRedrawData {
 	PixelFormat format;
 	unsigned long width;
@@ -30,6 +32,10 @@ struct GuestPixelBufferRedrawData {
 	unsigned long long bufferSize;
 } __attribute((packed))__;
 
+// Combination of both the main header and the redraw metadata.
+// Sent by the guest compositor to the host side in one chunk
+// and read on the host side in two separate steps,
+// hence the combination of two structs.
 struct GuestPixelBufferRedrawHeader {
 	GuestPixelBufferHeader header;
 	GuestPixelBufferRedrawData data;
