@@ -16,6 +16,8 @@ fi
 # Internal variables
 CLEAN=0
 BUILD_DEPS=0
+BUILD_GUEST=0
+BUILD_HOST=0
 
 # Overridable number of build processors
 if [ "$NUM_PROCS" == "" ]; then
@@ -34,8 +36,18 @@ while [[ $# -gt 0 ]]; do
             BUILD_DEPS=1
             shift
         ;;
+        --guest)
+            BUILD_GUEST=1
+            BUILD_HOST=0
+            shift
+        ;;
+        --host)
+            BUILD_GUEST=0
+            BUILD_HOST=1
+            shift
+        ;;
         *)
-            echo "usage: $0 [-d|--deps] [-c|--clean]"
+            echo "usage: $0 [-d|--deps] [-c|--clean] [--guest|--host]"
             exit 1
         ;;
     esac
@@ -82,10 +94,17 @@ function build_3rdparty_cmake {
     build_cmake $2
 }
 
-function build_project {
-    echo "Building project"
+function build_project_guest {
+    echo "Building project for guest"
     cd $SRC_PATH
-    cd src
+    cd src/guest
+    build_cmake $1
+}
+
+function build_project_host {
+    echo "Building project for host"
+    cd $SRC_PATH
+    cd src/host
     build_cmake $1
 }
 
@@ -99,8 +118,16 @@ fi
 # Build direct dependencies if requested
 if [ "$BUILD_DEPS" == "1" ]; then
     # Build direct dependencies
-    build_3rdparty_cmake mir
+    if [ "$BUILD_GUEST" == "1" ]; then
+        build_3rdparty_cmake mir
+    elif [ "$BUILD_HOST" == "1" ]; then
+        build_3rdparty_cmake SDL
+    fi
 fi
 
-# Build main sources
-build_project
+# Build main sources for either the guest or the host system
+if [ "$BUILD_GUEST" == "1" ]; then
+    build_project_guest
+elif [ "$BUILD_HOST" == "1" ]; then
+    build_project_host
+fi
