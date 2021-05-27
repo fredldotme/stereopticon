@@ -19,9 +19,20 @@ struct HostWindowPair
             SDL_DestroyWindow(window);
             window = nullptr;
         }
+        if (backBuffer) {
+            SDL_FreeSurface(backBuffer);
+            backBuffer = nullptr;
+        }
+        if (frontBuffer) {
+            SDL_FreeSurface(frontBuffer);
+            frontBuffer = nullptr;
+        }
     }
     SDL_Window* window = nullptr;
     SDL_Renderer* renderer = nullptr;
+    SDL_Surface* frontBuffer = nullptr;
+    SDL_Surface* backBuffer = nullptr;
+    bool dirty = false;
 };
 
 class PixelReceiver : public PixelBufferHandler
