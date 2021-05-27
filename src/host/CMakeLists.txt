@@ -19,6 +19,7 @@ include_directories(
 
 set(SRC
     main.cpp
+    pixelreceiver.cpp
 )
 
 add_executable(stereopticon-host
