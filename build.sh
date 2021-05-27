@@ -24,6 +24,9 @@ if [ "$NUM_PROCS" == "" ]; then
     NUM_PROCS=$(nproc --all)
 fi
 
+# Platform-specific checking
+KERNEL_NAME=$(uname -s)
+
 # Argument parsing
 while [[ $# -gt 0 ]]; do
     arg="$1"
@@ -68,6 +71,15 @@ function build_cmake {
     else
         MULTIARCH=""
     fi
+
+    # Environment-specific compiler flags
+    ADDITIONAL_C_FLAGS=""
+    ADDITIONAL_CXX_FLAGS=""
+    if [ "$KERNEL_NAME" == "Linux" ]; then
+        ADDITIONAL_C_FLAGS="-Wl,-rpath-link,$INSTALL/lib""
+        ADDITIONAL_CXX_FLAGS="-Wl,-rpath-link,$INSTALL/lib""
+    fi
+
     PKG_CONF_SYSTEM=/usr/lib/$MULTIARCH/pkgconfig
     PKG_CONF_INSTALL=$INSTALL/lib/pkgconfig:$INSTALL/lib/$MULTIARCH/pkgconfig
     PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$PKG_CONF_SYSTEM:$PKG_CONF_INSTALL
@@ -75,8 +87,8 @@ function build_cmake {
     	cmake .. \
         -DCMAKE_INSTALL_PREFIX=$INSTALL \
         -DCMAKE_MODULE_PATH=$INSTALL \
-        -DCMAKE_CXX_FLAGS="-isystem $INSTALL/include -L$INSTALL/lib -Wno-deprecated-declarations -Wl,-rpath-link,$INSTALL/lib" \
-        -DCMAKE_C_FLAGS="-isystem $INSTALL/include -L$INSTALL/lib -Wno-deprecated-declarations -Wl,-rpath-link,$INSTALL/lib" \
+        -DCMAKE_CXX_FLAGS="-isystem $INSTALL/include -L$INSTALL/lib -Wno-deprecated-declarations $ADDITIONAL_CXX_FLAGS" \
+        -DCMAKE_C_FLAGS="-isystem $INSTALL/include -L$INSTALL/lib -Wno-deprecated-declarations $ADDITIONAL_C_FLAGS" \
         -DCMAKE_LD_FLAGS="-L$INSTALL/lib" \
         -DCMAKE_LIBRARY_PATH=$INSTALL/lib $@
     make VERBOSE=1 -j$NUM_PROCS
@@ -108,11 +120,13 @@ function build_project_host {
     build_cmake $1
 }
 
-# Install distro-provided dependencies
-if [ -f /usr/bin/apt ] && [ -f /usr/bin/sudo ]; then
-    bash 3rdparty/apt.sh
-elif [ -f /usr/bin/dnf ] && [ -f /usr/bin/sudo ]; then
-    bash 3rdparty/dnf.sh
+# Install Linux distro-provided dependencies
+if [ "$KERNEL_NAME" == "Linux" ]; then
+    if [ -f /usr/bin/apt ] && [ -f /usr/bin/sudo ]; then
+        bash 3rdparty/apt.sh
+    elif [ -f /usr/bin/dnf ] && [ -f /usr/bin/sudo ]; then
+        bash 3rdparty/dnf.sh
+    fi
 fi
 
 # Build direct dependencies if requested
