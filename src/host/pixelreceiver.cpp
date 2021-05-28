@@ -76,7 +76,7 @@ void PixelReceiver::spawnWindow(GuestWindowSpawnCommand& spawnData)
 
 void PixelReceiver::destroyWindow(GuestWindowDestroyCommand& command)
 {
-    if (!this->windowExists(command.header.windowId)
+    if (!this->windowExists(command.header.windowId))
         return;
 
     // Destructing the HostWindowPair destroys the window on the host side.
