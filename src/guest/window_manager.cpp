@@ -32,12 +32,12 @@ namespace ms = mir::scene;
 using namespace miral;
 using namespace miral::toolkit;
 
-KioskWindowManagerPolicy::KioskWindowManagerPolicy(WindowManagerTools const& tools) :
-    CanonicalWindowManagerPolicy{tools}
+StereopticonWindowManagerPolicy::StereopticonWindowManagerPolicy(WindowManagerTools const& tools, GuestPixelBufferSender& sender) :
+    CanonicalWindowManagerPolicy{tools}, m_hostComm(&sender)
 {
 }
 
-bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
+bool StereopticonWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* event)
 {
     auto const action = mir_keyboard_event_action(event);
     auto const scan_code = mir_keyboard_event_scan_code(event);
@@ -83,7 +83,7 @@ bool KioskWindowManagerPolicy::handle_keyboard_event(MirKeyboardEvent const* eve
     return false;
 }
 
-bool KioskWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
+bool StereopticonWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
 {
     auto const count = mir_touch_event_point_count(event);
 
@@ -103,7 +103,7 @@ bool KioskWindowManagerPolicy::handle_touch_event(MirTouchEvent const* event)
     return false;
 }
 
-bool KioskWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* event)
+bool StereopticonWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* event)
 {
     auto const action = mir_pointer_event_action(event);
 
@@ -119,12 +119,12 @@ bool KioskWindowManagerPolicy::handle_pointer_event(MirPointerEvent const* event
     return false;
 }
 
-void KioskWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
+void StereopticonWindowManagerPolicy::advise_focus_gained(WindowInfo const& info)
 {
     CanonicalWindowManagerPolicy::advise_focus_gained(info);
 }
 
-auto KioskWindowManagerPolicy::place_new_window(ApplicationInfo const& app_info, WindowSpecification const& request)
+auto StereopticonWindowManagerPolicy::place_new_window(ApplicationInfo const& app_info, WindowSpecification const& request)
 -> WindowSpecification
 {
     WindowSpecification specification = CanonicalWindowManagerPolicy::place_new_window(app_info, request);
@@ -143,7 +143,19 @@ auto KioskWindowManagerPolicy::place_new_window(ApplicationInfo const& app_info,
     return specification;
 }
 
-void KioskWindowManagerPolicy::handle_modify_window(WindowInfo& window_info, WindowSpecification const& modifications)
+void StereopticonWindowManagerPolicy::advise_new_window(miral::WindowInfo const& window_info)
+{
+    GuestWindowSpawnCommand command;
+    this->m_hostComm->spawnWindow(command);    
+}
+
+void StereopticonWindowManagerPolicy::advise_delete_window(miral::WindowInfo const& window_info)
+{
+    GuestWindowDestroyCommand command;
+    this->m_hostComm->destroyWindow(command);
+}
+
+void StereopticonWindowManagerPolicy::handle_modify_window(WindowInfo& window_info, WindowSpecification const& modifications)
 {
     WindowSpecification specification = modifications;
 
@@ -161,20 +173,20 @@ void KioskWindowManagerPolicy::handle_modify_window(WindowInfo& window_info, Win
     CanonicalWindowManagerPolicy::handle_modify_window(window_info, specification);
 }
 
-void KioskWindowManagerPolicy::handle_request_drag_and_drop(WindowInfo& /*window_info*/)
+void StereopticonWindowManagerPolicy::handle_request_drag_and_drop(WindowInfo& /*window_info*/)
 {
 }
 
-void KioskWindowManagerPolicy::handle_request_move(WindowInfo& /*window_info*/, MirInputEvent const* /*input_event*/)
+void StereopticonWindowManagerPolicy::handle_request_move(WindowInfo& /*window_info*/, MirInputEvent const* /*input_event*/)
 {
 }
 
-void KioskWindowManagerPolicy::handle_request_resize(WindowInfo& /*window_info*/, MirInputEvent const* /*input_event*/, MirResizeEdge /*edge*/)
+void StereopticonWindowManagerPolicy::handle_request_resize(WindowInfo& /*window_info*/, MirInputEvent const* /*input_event*/, MirResizeEdge /*edge*/)
 {
 }
 
 Rectangle
-KioskWindowManagerPolicy::confirm_placement_on_display(WindowInfo const& /*window_info*/, MirWindowState /*new_state*/,
+StereopticonWindowManagerPolicy::confirm_placement_on_display(WindowInfo const& /*window_info*/, MirWindowState /*new_state*/,
     Rectangle const& new_placement)
 {
     return new_placement;

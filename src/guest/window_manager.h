@@ -26,15 +26,20 @@
 
 #include <mir_toolkit/events/enums.h>
 
+#include "../common/sender/guestpixelbuffersender.hpp"
+
 using namespace mir::geometry;
 
-class KioskWindowManagerPolicy : public miral::CanonicalWindowManagerPolicy
+class StereopticonWindowManagerPolicy : public miral::CanonicalWindowManagerPolicy
 {
 public:
-    KioskWindowManagerPolicy(miral::WindowManagerTools const& tools);
+    StereopticonWindowManagerPolicy(miral::WindowManagerTools const& tools, GuestPixelBufferSender& bufferSender);
 
     auto place_new_window(miral::ApplicationInfo const& app_info, miral::WindowSpecification const& request)
     -> miral::WindowSpecification override;
+
+    void advise_new_window(miral::WindowInfo const& window_info) override;
+    void advise_delete_window(miral::WindowInfo const& window_info) override;
 
     void advise_focus_gained(miral::WindowInfo const& info) override;
 
@@ -52,6 +57,7 @@ public:
         Rectangle const& new_placement) override;
 
 private:
+    GuestPixelBufferSender* m_hostComm = nullptr;
     static const int modifier_mask =
         mir_input_event_modifier_alt |
         mir_input_event_modifier_shift |

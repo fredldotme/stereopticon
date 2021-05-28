@@ -32,12 +32,13 @@
 #include <unistd.h>
 #include <atomic>
 
+#include "../common/sender/guestpixelbuffersender.hpp"
 #include "window_manager.h"
 
 namespace {
 struct StereopticonAuthorizer : miral::ApplicationAuthorizer
 {
-    StereopticonAuthorizer(){}
+    StereopticonAuthorizer() {}
 
     virtual bool connection_is_allowed(miral::ApplicationCredentials const& creds) override
     {
@@ -80,6 +81,7 @@ int main(int argc, char const* argv[])
 {
     using namespace miral;
 
+    GuestPixelBufferSender pixelBufferSender(0);
     MirRunner runner{argc, argv};
 
     DisplayConfiguration display_config{runner};
@@ -93,7 +95,7 @@ int main(int argc, char const* argv[])
         {
             display_config,
             display_config.layout_option(),
-            set_window_management_policy<KioskWindowManagerPolicy>(),
+            set_window_management_policy<StereopticonWindowManagerPolicy>(pixelBufferSender),
             SetApplicationAuthorizer<StereopticonAuthorizer>{},
             Keymap{},
             wayland_extensions
