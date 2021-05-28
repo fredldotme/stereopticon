@@ -8,7 +8,8 @@
 class PixelBufferHandler {
 public:
     virtual void spawnWindow(GuestWindowSpawnCommand& spawnData) = 0;
-	virtual void receiveRedraw(GuestPixelBufferRedrawCommand& command) = 0;
+    virtual void destroyWindow(GuestWindowDestroyCommand& command) = 0;
+    virtual void receiveRedraw(GuestPixelBufferRedrawCommand& command) = 0;
     virtual bool windowExists(wayland_window_id_t& windowId) = 0;
 };
 

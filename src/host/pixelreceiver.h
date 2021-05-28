@@ -37,6 +37,7 @@ public:
 
 public:
     void spawnWindow(GuestWindowSpawnCommand& spawnData) override;
+    void destroyWindow(GuestWindowDestroyCommand& command) override;
     void receiveRedraw(GuestPixelBufferRedrawCommand& command) override;
     bool windowExists(wayland_window_id_t& windowId) override;
 

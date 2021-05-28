@@ -42,6 +42,15 @@ struct GuestWindowSpawnCommand {
     GuestWindowSpawnData data;
 } __attribute__((packed));
 
+// Sent and read in one chunk.
+// Only the common header is needed as it includes the Wayland window id.
+struct GuestWindowDestroyCommand {
+    GuestWindowDestroyCommand() {
+        this->header.command = GuestCommand::COMMAND_WINDOW_DESTROY;
+    }
+    GuestPixelBufferHeader header;
+} __attribute__((packed));
+
 // Redraw metadata. Describes information about where and how
 // to draw pixel buffers that are sent after the RedrawHeader.
 struct GuestPixelBufferRedrawData {

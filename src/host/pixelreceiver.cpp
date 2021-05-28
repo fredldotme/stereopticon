@@ -32,6 +32,7 @@ void PixelReceiver::run()
         if (event.type == SDL_QUIT)
             break;
 
+        // Update dirty window contents
         for (auto it = this->m_waylandWindowIdMap.begin(); it != this->m_waylandWindowIdMap.end(); it++) {
             if (!it->second->dirty)
                 continue;
@@ -73,9 +74,18 @@ void PixelReceiver::spawnWindow(GuestWindowSpawnCommand& spawnData)
     this->m_waylandWindowIdMap.insert({spawnData.header.windowId, hostWindow});
 }
 
+void PixelReceiver::destroyWindow(GuestWindowDestroyCommand& command)
+{
+    if (!this->windowExists(command.header.windowId)
+        return;
+
+    // Destructing the HostWindowPair destroys the window on the host side.
+    this->m_waylandWindowIdMap.erase(command.header.windowId);
+}
+
 void PixelReceiver::receiveRedraw(GuestPixelBufferRedrawCommand& command)
 {
-    if (this->windowExists(command.header.header.windowId))
+    if (!this->windowExists(command.header.header.windowId))
         return;
 
     const int channels = getChannelsForFormat(command.header.data.format);
