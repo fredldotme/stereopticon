@@ -51,6 +51,11 @@ static void socketReadLoop(ReadSocketThreadMemory* memory)
             command.header = header;
             command.data = spawnData;
             memory->handler->spawnWindow(command);
+        } else if (header.command == GuestCommand::COMMAND_WINDOW_DESTROY) {
+            // We got all the data we need, cause the handler to destroy the window immediately
+            GuestWindowDestroyCommand command;
+            command.header = header;
+            memory->handler->destroyWindow(command);
         } else if (header.command == GuestCommand::COMMAND_REDRAW) {
             // Ignore windows that haven't been spawned yet
             const bool windowExists = memory->handler->windowExists(header.windowId);
