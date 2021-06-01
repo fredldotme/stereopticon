@@ -24,7 +24,7 @@ static int getSdlPixelFormatForPixelFormat(PixelFormat& format)
     }
 }
 
-void PixelReceiver::run()
+void WindowPainter::run()
 {
     SDL_Event event;
 
@@ -49,7 +49,7 @@ void PixelReceiver::run()
     }
 }
 
-void PixelReceiver::spawnWindow(GuestWindowSpawnCommand& spawnData)
+void WindowPainter::spawnWindow(GuestWindowSpawnCommand& spawnData)
 {
     if (this->windowExists(spawnData.header.windowId))
         return;
@@ -74,7 +74,7 @@ void PixelReceiver::spawnWindow(GuestWindowSpawnCommand& spawnData)
     this->m_waylandWindowIdMap.insert({spawnData.header.windowId, hostWindow});
 }
 
-void PixelReceiver::destroyWindow(GuestWindowDestroyCommand& command)
+void WindowPainter::destroyWindow(GuestWindowDestroyCommand& command)
 {
     if (!this->windowExists(command.header.windowId))
         return;
@@ -83,7 +83,7 @@ void PixelReceiver::destroyWindow(GuestWindowDestroyCommand& command)
     this->m_waylandWindowIdMap.erase(command.header.windowId);
 }
 
-void PixelReceiver::receiveRedraw(GuestPixelBufferRedrawCommand& command)
+void WindowPainter::receiveRedraw(GuestPixelBufferRedrawCommand& command)
 {
     if (!this->windowExists(command.header.header.windowId))
         return;
@@ -131,7 +131,7 @@ void PixelReceiver::receiveRedraw(GuestPixelBufferRedrawCommand& command)
     hostWindow->dirty = true;
 }
 
-bool PixelReceiver::windowExists(wayland_window_id_t& windowId)
+bool WindowPainter::windowExists(wayland_window_id_t& windowId)
 {
     const bool mapKeyExists = this->m_waylandWindowIdMap.find(windowId) !=
                               this->m_waylandWindowIdMap.end();

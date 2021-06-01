@@ -1,5 +1,5 @@
-#ifndef PIXELRECEIVER_H
-#define PIXELRECEIVER_H
+#ifndef WINDOWPAINTER_H
+#define WINDOWPAINTER_H
 
 #include <map>
 #include <memory>
@@ -30,7 +30,7 @@ struct HostWindowPair
     bool dirty = false;
 };
 
-class PixelReceiver : public PixelBufferHandler
+class WindowPainter : public PixelBufferHandler
 {
 public:
     void run();
