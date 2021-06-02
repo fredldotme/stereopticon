@@ -38,9 +38,6 @@ struct GuestWindowSpawnData {
 // Sent by the guest compositor to the host in one chunk,
 // read by the host display as two chunks (first header, then data).
 struct GuestWindowSpawnCommand {
-    GuestWindowSpawnCommand() {
-        this->header.command = GuestCommand::COMMAND_WINDOW_SPAWN;
-    }
     GuestPixelBufferHeader header;
     GuestWindowSpawnData data;
 } __attribute__((packed));
@@ -48,9 +45,6 @@ struct GuestWindowSpawnCommand {
 // Sent and read in one chunk.
 // Only the common header is needed as it includes the Wayland window id.
 struct GuestWindowDestroyCommand {
-    GuestWindowDestroyCommand() {
-        this->header.command = GuestCommand::COMMAND_WINDOW_DESTROY;
-    }
     GuestPixelBufferHeader header;
 } __attribute__((packed));
 
@@ -75,7 +69,7 @@ struct GuestPixelBufferRedrawHeader {
 } __attribute__((packed));
 
 struct GuestPixelBufferRedrawCommand {
-    GuestPixelBufferRedrawCommand() {
+    /*GuestPixelBufferRedrawCommand() {
         this->header.header.command = GuestCommand::COMMAND_REDRAW;
     }
     GuestPixelBufferRedrawCommand(
@@ -93,9 +87,9 @@ struct GuestPixelBufferRedrawCommand {
         this->header.data.offsetY = offsetY;
         this->header.data.bufferSize = bufferSize;
         this->pixelBuffer = pixelBuffer;
-    };
+    };*/
     GuestPixelBufferRedrawHeader header;
     char* pixelBuffer = nullptr;
-};
+} __attribute__((packed));
 
 #endif

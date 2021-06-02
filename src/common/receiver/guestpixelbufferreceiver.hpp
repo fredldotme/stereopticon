@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <thread>
 #include "../guestpixelbuffer.h"
+#include "../transport.h"
 
 class PixelBufferHandler {
 public:
@@ -16,7 +17,7 @@ public:
 struct ReadSocketThreadMemory {
     bool read = true;
     bool done = false;
-    int socketFd = -1;
+    Transport* transport = nullptr;
     PixelBufferHandler* handler = nullptr;
 };
 
@@ -31,7 +32,7 @@ static void socketReadLoop(ReadSocketThreadMemory* memory)
     while (memory->read) {
         // Header should be sent first
         GuestPixelBufferHeader header;
-        ssize_t receivedLen = read(memory->socketFd, (void*)&header, sizeof(header));
+        ssize_t receivedLen = transport->read((void*)&header, sizeof(header));
 
         // Not matching data? Try again
         if (receivedLen != sizeof(header))
@@ -42,7 +43,7 @@ static void socketReadLoop(ReadSocketThreadMemory* memory)
         if (header.command == GuestCommand::COMMAND_WINDOW_SPAWN) {
             GuestWindowSpawnData spawnData;
             remainingLen = sizeof(spawnData);
-            receivedLen = read(memory->socketFd, (void*)&spawnData, remainingLen);
+            receivedLen = transport->read((void*)&spawnData, remainingLen);
 
             if (receivedLen != remainingLen)
                 continue;
@@ -64,7 +65,7 @@ static void socketReadLoop(ReadSocketThreadMemory* memory)
 
             GuestPixelBufferRedrawData redrawData;
             remainingLen = sizeof(redrawData);
-            receivedLen = read(memory->socketFd, (void*)&redrawData, remainingLen);
+            receivedLen = transport->read((void*)&redrawData, remainingLen);
 
             // Received data has to match size
             if (receivedLen != remainingLen)
@@ -75,7 +76,7 @@ static void socketReadLoop(ReadSocketThreadMemory* memory)
                 continue;
 
             char* pixels = new char[redrawData.bufferSize];
-            receivedLen = read(memory->socketFd, (void*)pixels, redrawData.bufferSize);
+            receivedLen = transport->read((void*)pixels, redrawData.bufferSize);
 
             // If received length doesn't match buffer size in header, ignore.
             if (receivedLen != redrawData.bufferSize) {
@@ -105,10 +106,10 @@ done:
 
 class GuestPixelBufferReceiver {
 public:
-    GuestPixelBufferReceiver(int socketFd, PixelBufferHandler* handler)
+    GuestPixelBufferReceiver(Transport* transport, PixelBufferHandler* handler)
     {
         this->m_readLoopMemory.handler = handler;
-        this->m_readLoopMemory.socketFd = socketFd;
+        this->m_readLoopMemory.transport = transport;
         this->m_readThread = new std::thread(socketReadLoop, &m_readLoopMemory);
     }
     ~GuestPixelBufferReceiver()
