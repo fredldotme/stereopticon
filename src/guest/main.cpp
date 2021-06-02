@@ -32,6 +32,7 @@
 #include <unistd.h>
 #include <atomic>
 
+#include "../common/transports/sharedtransport.hpp"
 #include "../common/sender/guestpixelbuffersender.hpp"
 #include "window_manager.h"
 
@@ -81,7 +82,8 @@ int main(int argc, char const* argv[])
 {
     using namespace miral;
 
-    GuestPixelBufferSender pixelBufferSender(0);
+    SharedMemoryTransport transport;
+    GuestPixelBufferSender pixelBufferSender(&transport);
     MirRunner runner{argc, argv};
 
     DisplayConfiguration display_config{runner};

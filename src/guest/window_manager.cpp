@@ -32,6 +32,12 @@ namespace ms = mir::scene;
 using namespace miral;
 using namespace miral::toolkit;
 
+static wayland_window_id_t stringToWaylandId(const std::string& str)
+{
+    std::cout << "stringToWaylandId: " << str << std::endl;
+    return 0;
+}
+
 StereopticonWindowManagerPolicy::StereopticonWindowManagerPolicy(WindowManagerTools const& tools, GuestPixelBufferSender& sender) :
     CanonicalWindowManagerPolicy{tools}, m_hostComm(&sender)
 {
@@ -146,12 +152,22 @@ auto StereopticonWindowManagerPolicy::place_new_window(ApplicationInfo const& ap
 void StereopticonWindowManagerPolicy::advise_new_window(miral::WindowInfo const& window_info)
 {
     GuestWindowSpawnCommand command;
-    this->m_hostComm->spawnWindow(command);    
+    command.header.version = 0;
+    command.header.command = GuestCommand::COMMAND_WINDOW_SPAWN;
+    command.header.windowId = stringToWaylandId(tools.id_for_window(window_info.window()));
+    command.data.x = window_info.restore_rect().top_left.x;
+    command.data.y = window_info.restore_rect().top_left.y;
+    command.data.width = window_info.restore_rect().size.width;
+    command.data.height = window_info.restore_rect().size.height;
+    this->m_hostComm->spawnWindow(command);
 }
 
 void StereopticonWindowManagerPolicy::advise_delete_window(miral::WindowInfo const& window_info)
 {
     GuestWindowDestroyCommand command;
+    command.header.version = 0;
+    command.header.command = GuestCommand::COMMAND_WINDOW_DESTROY;
+    command.header.windowId = stringToWaylandId(tools.id_for_window(window_info.window()));
     this->m_hostComm->destroyWindow(command);
 }
 
