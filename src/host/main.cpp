@@ -1,14 +1,16 @@
 #include <iostream>
 #include <map>
 #include <SDL.h>
-#include "pixelreceiver.h"
+#include "windowpainter.h"
+#include "../common/transports/sharedmemtransport.hpp"
 
 int main(int argc, char** argv)
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 
-    PixelReceiver windowPainter;
-    GuestPixelBufferReceiver receiver(0, &windowPainter);
+    WindowPainter windowPainter;
+    SharedMemTransport transport;
+    GuestPixelBufferReceiver receiver(&transport, &windowPainter);
 
     windowPainter.run();
 
